@@ -1,0 +1,17 @@
+{
+  "name": "ChronoFocus - Pomodoro Productivity Studio",
+  "short_name": "ChronoFocus",
+  "description": "Minimal, fast & beautiful Pomodoro productivity PWA for personal focus, task tracking, and analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2309090b' stroke='%23f43f5e' stroke-width='8'/><path d='M50 20 V50 L70 65' stroke='%23ffffff' stroke-width='6' stroke-linecap='round'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
