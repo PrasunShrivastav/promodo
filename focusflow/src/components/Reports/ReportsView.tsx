@@ -48,7 +48,7 @@ export const ReportsView: React.FC = () => {
 
         {/* Streak summary pill */}
         <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
-          <Flame className="w-5 h-5 fill-amber-500 text-amber-500 animate-pulse" />
+          <Flame className="w-5 h-5 fill-amber-500 text-amber-500" />
           <div>
             <span className="text-xs text-zinc-500 block leading-tight">Streak</span>
             <span className="font-mono font-bold text-base">{summary.currentStreak} Days Current (Best: {summary.longestStreak}d)</span>

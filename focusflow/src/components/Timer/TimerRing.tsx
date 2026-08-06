@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Target, Sparkles, Coffee } from 'lucide-react';
 
@@ -6,17 +6,8 @@ export const TimerRing: React.FC = () => {
   const timer = usePomodoroStore(state => state.timer);
   const tasks = usePomodoroStore(state => state.tasks);
   const settings = usePomodoroStore(state => state.settings);
-
-  // Local 1-second tick state so only TimerRing re-renders on every second while running
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    if (!timer.isRunning) return;
-    const interval = setInterval(() => {
-      setTick(t => t + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timer.isRunning]);
+  // Subscribe to global tick so TimerRing updates synchronously with GlobalTimerEngine
+  usePomodoroStore(state => state.tick);
 
   // Calculate elapsed and remaining seconds
   const currentElapsed = timer.elapsedBeforePause + (timer.isRunning && timer.startTime ? Math.floor((Date.now() - timer.startTime) / 1000) : 0);
@@ -75,7 +66,7 @@ export const TimerRing: React.FC = () => {
             cx="50"
             cy="50"
             r="45"
-            className={`fill-none transition-all duration-500 ease-linear ${sessionColors[timer.sessionType]}`}
+            className={`fill-none transition-[stroke-dashoffset] duration-1000 ease-linear ${sessionColors[timer.sessionType]}`}
             strokeWidth="4"
             strokeDasharray="283"
             strokeDashoffset={strokeDashoffset}
@@ -128,7 +119,7 @@ export const TimerRing: React.FC = () => {
                   isCompleted
                     ? 'w-6 bg-rose-500 dark:bg-rose-400'
                     : isCurrent
-                      ? 'w-4 bg-rose-400/80 dark:bg-rose-500/80 animate-pulse'
+                      ? 'w-4 bg-rose-500 dark:bg-rose-400 ring-2 ring-rose-500/30'
                       : 'w-2 bg-zinc-300 dark:bg-zinc-800'
                 }`}
               />

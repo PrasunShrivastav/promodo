@@ -47,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({ deferredPrompt, onIns
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-950/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
         
         {/* Brand & Logo */}
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({ deferredPrompt, onIns
             aria-label={`Current streak: ${currentStreak} days`}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold"
           >
-            <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+            <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
             <span>{currentStreak}d</span>
           </div>
 

@@ -76,6 +76,7 @@ interface PomodoroStore {
 
   // Timer Engine
   timer: TimerState;
+  tick: number;
   isAlarmRinging: boolean;
   alarmSessionType: SessionType | null;
 
@@ -435,6 +436,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
 
   // Timer Engine
   timer: defaultTimerState,
+  tick: 0,
   isAlarmRinging: false,
   alarmSessionType: null,
   pendingRollover: false,
@@ -692,6 +694,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
 
       // Execute daily rollover check after session end
       checkAndPerformRollover();
+    } else {
+      set(state => ({ tick: state.tick + 1 }));
     }
   },
 
