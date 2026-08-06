@@ -12,15 +12,13 @@ import {
 } from 'lucide-react';
 
 export const TemplateManager: React.FC = () => {
-  const { 
-    templates, 
-    createTemplate, 
-    updateTemplate, 
-    deleteTemplate, 
-    setDefaultTemplate,
-    applyTemplateToToday,
-    setActiveTab
-  } = usePomodoroStore();
+  const templates = usePomodoroStore(state => state.templates);
+  const createTemplate = usePomodoroStore(state => state.createTemplate);
+  const updateTemplate = usePomodoroStore(state => state.updateTemplate);
+  const deleteTemplate = usePomodoroStore(state => state.deleteTemplate);
+  const setDefaultTemplate = usePomodoroStore(state => state.setDefaultTemplate);
+  const applyTemplateToToday = usePomodoroStore(state => state.applyTemplateToToday);
+  const setActiveTab = usePomodoroStore(state => state.setActiveTab);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTempName, setNewTempName] = useState('');

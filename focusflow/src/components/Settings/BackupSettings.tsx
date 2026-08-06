@@ -4,7 +4,10 @@ import { saveStoredTasks, saveStoredTemplates, saveStoredSessions, saveStoredSet
 import { Download, Upload, Database, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export const BackupSettings: React.FC = React.memo(() => {
-  const { tasks, templates, sessions, settings, initializeStore } = usePomodoroStore();
+  const tasks = usePomodoroStore(state => state.tasks);
+  const templates = usePomodoroStore(state => state.templates);
+  const sessions = usePomodoroStore(state => state.sessions);
+  const settings = usePomodoroStore(state => state.settings);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);

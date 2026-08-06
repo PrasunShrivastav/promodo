@@ -3,12 +3,10 @@ import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { BellRing, Volume2, Clock, CheckCircle } from 'lucide-react';
 
 export const AlarmModal: React.FC = () => {
-  const { 
-    isAlarmRinging, 
-    alarmSessionType, 
-    dismissAlarm, 
-    snoozeAlarm 
-  } = usePomodoroStore();
+  const isAlarmRinging = usePomodoroStore(state => state.isAlarmRinging);
+  const alarmSessionType = usePomodoroStore(state => state.alarmSessionType);
+  const dismissAlarm = usePomodoroStore(state => state.dismissAlarm);
+  const snoozeAlarm = usePomodoroStore(state => state.snoozeAlarm);
 
   if (!isAlarmRinging) return null;
 

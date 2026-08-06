@@ -692,11 +692,6 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
 
       // Execute daily rollover check after session end
       checkAndPerformRollover();
-    } else {
-      // Trigger store update so timer subscribers re-render on each tick
-      set((state) => ({
-        timer: { ...state.timer }
-      }));
     }
   },
 

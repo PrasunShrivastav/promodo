@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Play, Pause, SkipForward, Maximize2 } from 'lucide-react';
 
 export const MiniFloatingTimer: React.FC = () => {
-  const { 
-    timer, 
-    activeTab, 
-    setActiveTab, 
-    startTimer, 
-    pauseTimer, 
-    resumeTimer, 
-    skipPhase,
-    tasks 
-  } = usePomodoroStore();
+  const timer = usePomodoroStore(state => state.timer);
+  const activeTab = usePomodoroStore(state => state.activeTab);
+  const setActiveTab = usePomodoroStore(state => state.setActiveTab);
+  const startTimer = usePomodoroStore(state => state.startTimer);
+  const pauseTimer = usePomodoroStore(state => state.pauseTimer);
+  const resumeTimer = usePomodoroStore(state => state.resumeTimer);
+  const skipPhase = usePomodoroStore(state => state.skipPhase);
+  const tasks = usePomodoroStore(state => state.tasks);
+
+  // Local 1-second tick state so MiniFloatingTimer updates when activeTab !== 'dashboard'
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!timer.isRunning || activeTab === 'dashboard') return;
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer.isRunning, activeTab]);
 
   // Hide when on dashboard tab or when timer hasn't been used
   if (activeTab === 'dashboard') return null;

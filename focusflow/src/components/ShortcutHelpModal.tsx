@@ -3,7 +3,8 @@ import { usePomodoroStore } from '../store/usePomodoroStore';
 import { Keyboard, X } from 'lucide-react';
 
 export const ShortcutHelpModal: React.FC = () => {
-  const { isShortcutModalOpen, setShortcutModalOpen } = usePomodoroStore();
+  const isShortcutModalOpen = usePomodoroStore(state => state.isShortcutModalOpen);
+  const setShortcutModalOpen = usePomodoroStore(state => state.setShortcutModalOpen);
 
   if (!isShortcutModalOpen) return null;
 

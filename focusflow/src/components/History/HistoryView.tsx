@@ -13,7 +13,9 @@ import {
 } from 'lucide-react';
 
 export const HistoryView: React.FC = () => {
-  const { sessions, tasks, clearHistory } = usePomodoroStore();
+  const sessions = usePomodoroStore(state => state.sessions);
+  const tasks = usePomodoroStore(state => state.tasks);
+  const clearHistory = usePomodoroStore(state => state.clearHistory);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTaskFilter, setSelectedTaskFilter] = useState<string>('all');

@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Target, Sparkles, Coffee } from 'lucide-react';
 
 export const TimerRing: React.FC = () => {
-  const { 
-    timer, 
-    tasks, 
-    settings
-  } = usePomodoroStore();
+  const timer = usePomodoroStore(state => state.timer);
+  const tasks = usePomodoroStore(state => state.tasks);
+  const settings = usePomodoroStore(state => state.settings);
+
+  // Local 1-second tick state so only TimerRing re-renders on every second while running
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!timer.isRunning) return;
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timer.isRunning]);
 
   // Calculate elapsed and remaining seconds
   const currentElapsed = timer.elapsedBeforePause + (timer.isRunning && timer.startTime ? Math.floor((Date.now() - timer.startTime) / 1000) : 0);

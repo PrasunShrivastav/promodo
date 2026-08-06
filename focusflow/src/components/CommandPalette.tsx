@@ -17,20 +17,18 @@ import {
 } from 'lucide-react';
 
 export const CommandPalette: React.FC = () => {
-  const { 
-    isCommandPaletteOpen, 
-    setCommandPaletteOpen,
-    setActiveTab,
-    tasks,
-    setActiveTaskId,
-    timer,
-    startTimer,
-    pauseTimer,
-    settings,
-    updateSettings,
-    templates,
-    applyTemplateToToday
-  } = usePomodoroStore();
+  const isCommandPaletteOpen = usePomodoroStore(state => state.isCommandPaletteOpen);
+  const setCommandPaletteOpen = usePomodoroStore(state => state.setCommandPaletteOpen);
+  const setActiveTab = usePomodoroStore(state => state.setActiveTab);
+  const tasks = usePomodoroStore(state => state.tasks);
+  const setActiveTaskId = usePomodoroStore(state => state.setActiveTaskId);
+  const timer = usePomodoroStore(state => state.timer);
+  const startTimer = usePomodoroStore(state => state.startTimer);
+  const pauseTimer = usePomodoroStore(state => state.pauseTimer);
+  const settings = usePomodoroStore(state => state.settings);
+  const updateSettings = usePomodoroStore(state => state.updateSettings);
+  const templates = usePomodoroStore(state => state.templates);
+  const applyTemplateToToday = usePomodoroStore(state => state.applyTemplateToToday);
 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);

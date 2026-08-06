@@ -49,5 +49,8 @@ export function updateTabTitleTimer(formattedTime: string, sessionType: string, 
   if (titleFlashInterval !== null) return; // Don't overwrite alarm flash
   const prefix = isRunning ? '▶' : '⏸';
   const label = sessionType === 'work' ? 'Focus' : sessionType === 'shortBreak' ? 'Break' : 'Long Break';
-  document.title = `${prefix} (${formattedTime}) ${label} - ChronoFocus`;
+  const nextTitle = `${prefix} (${formattedTime}) ${label} - ChronoFocus`;
+  if (document.title !== nextTitle) {
+    document.title = nextTitle;
+  }
 }

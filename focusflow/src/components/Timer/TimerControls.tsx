@@ -3,18 +3,16 @@ import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Play, Pause, SkipForward, RotateCcw, Square } from 'lucide-react';
 
 export const TimerControls: React.FC = () => {
-  const { 
-    timer, 
-    settings, 
-    startTimer, 
-    pauseTimer, 
-    resumeTimer, 
-    skipPhase, 
-    stopTimer, 
-    resetTimer,
-    setActivePreset,
-    setCommandPaletteOpen
-  } = usePomodoroStore();
+  const timer = usePomodoroStore(state => state.timer);
+  const settings = usePomodoroStore(state => state.settings);
+  const startTimer = usePomodoroStore(state => state.startTimer);
+  const pauseTimer = usePomodoroStore(state => state.pauseTimer);
+  const resumeTimer = usePomodoroStore(state => state.resumeTimer);
+  const skipPhase = usePomodoroStore(state => state.skipPhase);
+  const stopTimer = usePomodoroStore(state => state.stopTimer);
+  const resetTimer = usePomodoroStore(state => state.resetTimer);
+  const setActivePreset = usePomodoroStore(state => state.setActivePreset);
+  const setCommandPaletteOpen = usePomodoroStore(state => state.setCommandPaletteOpen);
 
   // Global Keyboard Shortcuts listener
   useEffect(() => {
