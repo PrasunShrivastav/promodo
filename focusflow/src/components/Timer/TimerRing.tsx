@@ -1,46 +1,53 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Target, Sparkles, Coffee } from 'lucide-react';
 
-export const TimerRing: React.FC = () => {
-  const timer = usePomodoroStore(state => state.timer);
+export const TimerRing: React.FC = React.memo(() => {
+  const sessionType = usePomodoroStore(state => state.timer.sessionType);
+  const durationSeconds = usePomodoroStore(state => state.timer.durationSeconds);
+  const currentCycle = usePomodoroStore(state => state.timer.currentCycle);
+  const activeTaskId = usePomodoroStore(state => state.timer.activeTaskId);
+  const isRunning = usePomodoroStore(state => state.timer.isRunning);
   const tasks = usePomodoroStore(state => state.tasks);
   const settings = usePomodoroStore(state => state.settings);
-  // Subscribe to global tick so TimerRing updates synchronously with GlobalTimerEngine
-  usePomodoroStore(state => state.tick);
-
-  // Calculate elapsed and remaining seconds
-  const currentElapsed = timer.elapsedBeforePause + (timer.isRunning && timer.startTime ? Math.floor((Date.now() - timer.startTime) / 1000) : 0);
-  const remainingSeconds = Math.max(0, timer.durationSeconds - currentElapsed);
+  const remainingSeconds = usePomodoroStore(state => state.remainingSeconds);
 
   const mins = Math.floor(remainingSeconds / 60);
   const secs = remainingSeconds % 60;
   const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-  // Progress percentage (1 to 0 or 0 to 1)
-  const progress = timer.durationSeconds > 0 ? (currentElapsed / timer.durationSeconds) : 0;
+  // Progress percentage (0 to 1)
+  const currentElapsed = durationSeconds - remainingSeconds;
+  const progress = durationSeconds > 0 ? (currentElapsed / durationSeconds) : 0;
   const strokeDashoffset = 283 * (1 - Math.min(1, Math.max(0, progress)));
 
   // Active task details
-  const activeTask = tasks.find(t => t.id === timer.activeTaskId) || tasks.find(t => !t.archived) || null;
+  const activeTask = useMemo(() => {
+    return tasks.find(t => t.id === activeTaskId) || tasks.find(t => !t.archived) || null;
+  }, [tasks, activeTaskId]);
 
   // Preset info
-  const activePreset = settings.presets.find(p => p.id === settings.activePresetId) || settings.presets[0];
+  const activePreset = useMemo(() => {
+    return settings.presets.find(p => p.id === settings.activePresetId) || settings.presets[0];
+  }, [settings.presets, settings.activePresetId]);
 
-  // Theme accent stroke color
-  const sessionColors = {
-    work: 'text-rose-500 stroke-rose-500 dark:stroke-rose-400',
-    shortBreak: 'text-emerald-500 stroke-emerald-500 dark:stroke-emerald-400',
-    longBreak: 'text-sky-500 stroke-sky-500 dark:stroke-sky-400'
+  // Stroke color per session type
+  const strokeColors: Record<string, string> = {
+    work: 'stroke-rose-500 dark:stroke-rose-400',
+    shortBreak: 'stroke-emerald-500 dark:stroke-emerald-400',
+    longBreak: 'stroke-sky-500 dark:stroke-sky-400'
   };
 
-  const sessionBadge = {
+  // Static glow class per session type (CSS-only, no animation)
+  const glowClass = isRunning ? `timer-glow-${sessionType}` : '';
+
+  const sessionBadge: Record<string, { label: string; icon: React.ReactNode; bg: string }> = {
     work: { label: 'Focus Time', icon: <Target className="w-3.5 h-3.5 text-rose-500" />, bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' },
     shortBreak: { label: 'Short Break', icon: <Coffee className="w-3.5 h-3.5 text-emerald-500" />, bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
     longBreak: { label: 'Long Break', icon: <Sparkles className="w-3.5 h-3.5 text-sky-500" />, bg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20' }
   };
 
-  const currentBadge = sessionBadge[timer.sessionType];
+  const currentBadge = sessionBadge[sessionType];
 
   return (
     <div className="flex flex-col items-center justify-center py-6 px-4">
@@ -50,8 +57,8 @@ export const TimerRing: React.FC = () => {
         <span>{currentBadge.label}</span>
       </div>
 
-      {/* SVG Countdown Ring */}
-      <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center">
+      {/* SVG Countdown Ring — static glow, no animations */}
+      <div className={`relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center rounded-full transition-shadow duration-500 ${glowClass}`}>
         <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
           {/* Background Ring Track */}
           <circle
@@ -61,12 +68,12 @@ export const TimerRing: React.FC = () => {
             className="stroke-zinc-200 dark:stroke-zinc-800/80 fill-none"
             strokeWidth="4"
           />
-          {/* Animated Active Progress Ring */}
+          {/* Active Progress Ring — no CSS transition, JS drives updates */}
           <circle
             cx="50"
             cy="50"
             r="45"
-            className={`fill-none transition-[stroke-dashoffset] duration-1000 ease-linear ${sessionColors[timer.sessionType]}`}
+            className={`fill-none ${strokeColors[sessionType]}`}
             strokeWidth="4"
             strokeDasharray="283"
             strokeDashoffset={strokeDashoffset}
@@ -106,12 +113,12 @@ export const TimerRing: React.FC = () => {
       {/* Session Cycle Dots */}
       <div className="mt-6 flex items-center gap-2">
         <span className="text-xs text-zinc-500 font-medium mr-1">
-          Session {timer.currentCycle} of {activePreset.sessionsBeforeLongBreak}
+          Session {currentCycle} of {activePreset.sessionsBeforeLongBreak}
         </span>
         <div className="flex items-center gap-1.5">
           {Array.from({ length: activePreset.sessionsBeforeLongBreak }).map((_, i) => {
-            const isCompleted = i < timer.currentCycle - 1;
-            const isCurrent = i === timer.currentCycle - 1;
+            const isCompleted = i < currentCycle - 1;
+            const isCurrent = i === currentCycle - 1;
             return (
               <div
                 key={i}
@@ -129,4 +136,6 @@ export const TimerRing: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+TimerRing.displayName = 'TimerRing';

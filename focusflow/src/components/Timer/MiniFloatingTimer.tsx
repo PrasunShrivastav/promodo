@@ -2,32 +2,28 @@ import React from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Play, Pause, SkipForward, Maximize2 } from 'lucide-react';
 
-export const MiniFloatingTimer: React.FC = () => {
-  const timer = usePomodoroStore(state => state.timer);
-  const activeTab = usePomodoroStore(state => state.activeTab);
+// Inner component that subscribes to remainingSeconds — only mounted when visible
+const MiniFloatingTimerInner: React.FC = React.memo(() => {
   const setActiveTab = usePomodoroStore(state => state.setActiveTab);
+  const isRunning = usePomodoroStore(state => state.timer.isRunning);
+  const isPaused = usePomodoroStore(state => state.timer.isPaused);
+  const sessionType = usePomodoroStore(state => state.timer.sessionType);
+  const activeTaskId = usePomodoroStore(state => state.timer.activeTaskId);
   const startTimer = usePomodoroStore(state => state.startTimer);
   const pauseTimer = usePomodoroStore(state => state.pauseTimer);
   const resumeTimer = usePomodoroStore(state => state.resumeTimer);
   const skipPhase = usePomodoroStore(state => state.skipPhase);
   const tasks = usePomodoroStore(state => state.tasks);
-  // Subscribe to store tick only when floating timer is visible
-  usePomodoroStore(state => activeTab !== 'dashboard' ? state.tick : 0);
-
-  // Hide when on dashboard tab or when timer hasn't been used
-  if (activeTab === 'dashboard') return null;
-
-  const currentElapsed = timer.elapsedBeforePause + (timer.isRunning && timer.startTime ? Math.floor((Date.now() - timer.startTime) / 1000) : 0);
-  const remainingSeconds = Math.max(0, timer.durationSeconds - currentElapsed);
+  const remainingSeconds = usePomodoroStore(state => state.remainingSeconds);
 
   const mins = Math.floor(remainingSeconds / 60);
   const secs = remainingSeconds % 60;
   const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-  const activeTask = tasks.find(t => t.id === timer.activeTaskId);
+  const activeTask = tasks.find(t => t.id === activeTaskId);
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800/90 shadow-2xl rounded-2xl p-2.5 backdrop-blur-md animate-in slide-in-from-bottom-5 duration-200">
+    <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3 bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800/90 shadow-2xl rounded-2xl p-2.5">
       
       {/* Clickable Timer Badge */}
       <button 
@@ -42,7 +38,7 @@ export const MiniFloatingTimer: React.FC = () => {
             {activeTask?.name || 'General Focus'}
           </span>
           <span className="text-[10px] text-zinc-500 capitalize">
-            {timer.sessionType === 'work' ? 'Focusing' : 'Break'} • {timer.isRunning ? 'Running' : 'Paused'}
+            {sessionType === 'work' ? 'Focusing' : 'Break'} • {isRunning ? 'Running' : 'Paused'}
           </span>
         </div>
       </button>
@@ -51,9 +47,9 @@ export const MiniFloatingTimer: React.FC = () => {
 
       {/* Quick Play / Pause / Skip */}
       <div className="flex items-center gap-1">
-        {!timer.isRunning ? (
+        {!isRunning ? (
           <button
-            onClick={timer.isPaused ? resumeTimer : startTimer}
+            onClick={isPaused ? resumeTimer : startTimer}
             className="p-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition-colors"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
@@ -84,4 +80,18 @@ export const MiniFloatingTimer: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+MiniFloatingTimerInner.displayName = 'MiniFloatingTimerInner';
+
+// Outer gate — only subscribes to activeTab, does NOT subscribe to remainingSeconds
+export const MiniFloatingTimer: React.FC = React.memo(() => {
+  const activeTab = usePomodoroStore(state => state.activeTab);
+
+  // Don't mount the inner component at all on dashboard — zero subscriptions, zero re-renders
+  if (activeTab === 'dashboard') return null;
+
+  return <MiniFloatingTimerInner />;
+});
+
+MiniFloatingTimer.displayName = 'MiniFloatingTimer';

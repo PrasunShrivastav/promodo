@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { usePomodoroStore } from '../../store/usePomodoroStore';
 import { Play, Pause, SkipForward, RotateCcw, Square } from 'lucide-react';
 
-export const TimerControls: React.FC = () => {
-  const timer = usePomodoroStore(state => state.timer);
+export const TimerControls: React.FC = React.memo(() => {
+  const isRunning = usePomodoroStore(state => state.timer.isRunning);
+  const isPaused = usePomodoroStore(state => state.timer.isPaused);
   const settings = usePomodoroStore(state => state.settings);
   const startTimer = usePomodoroStore(state => state.startTimer);
   const pauseTimer = usePomodoroStore(state => state.pauseTimer);
@@ -31,9 +32,9 @@ export const TimerControls: React.FC = () => {
 
       if (e.code === 'Space') {
         e.preventDefault();
-        if (timer.isRunning) {
+        if (isRunning) {
           pauseTimer();
-        } else if (timer.isPaused) {
+        } else if (isPaused) {
           resumeTimer();
         } else {
           startTimer();
@@ -45,7 +46,7 @@ export const TimerControls: React.FC = () => {
         e.preventDefault();
         resetTimer();
       } else if (e.code === 'Escape') {
-        if (timer.isRunning || timer.isPaused) {
+        if (isRunning || isPaused) {
           e.preventDefault();
           stopTimer();
         }
@@ -54,7 +55,7 @@ export const TimerControls: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [timer.isRunning, timer.isPaused, startTimer, pauseTimer, resumeTimer, skipPhase, resetTimer, stopTimer, setCommandPaletteOpen]);
+  }, [isRunning, isPaused, startTimer, pauseTimer, resumeTimer, skipPhase, resetTimer, stopTimer, setCommandPaletteOpen]);
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto">
@@ -92,7 +93,7 @@ export const TimerControls: React.FC = () => {
         </button>
 
         {/* Start / Pause / Resume Button */}
-        {!timer.isRunning && !timer.isPaused ? (
+        {!isRunning && !isPaused ? (
           <button
             onClick={startTimer}
             className="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-base shadow-lg shadow-rose-500/25 transition-all hover:scale-[1.02] active:scale-95"
@@ -100,7 +101,7 @@ export const TimerControls: React.FC = () => {
             <Play className="w-5 h-5 fill-white" />
             <span>Start Focus</span>
           </button>
-        ) : timer.isRunning ? (
+        ) : isRunning ? (
           <button
             onClick={pauseTimer}
             className="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-lg shadow-amber-500/25 transition-all hover:scale-[1.02] active:scale-95"
@@ -128,7 +129,7 @@ export const TimerControls: React.FC = () => {
         </button>
 
         {/* Stop Button */}
-        {(timer.isRunning || timer.isPaused) && (
+        {(isRunning || isPaused) && (
           <button
             onClick={stopTimer}
             title="Stop Session (Esc)"
@@ -147,4 +148,6 @@ export const TimerControls: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+TimerControls.displayName = 'TimerControls';

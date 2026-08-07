@@ -76,7 +76,7 @@ interface PomodoroStore {
 
   // Timer Engine
   timer: TimerState;
-  tick: number;
+  remainingSeconds: number;
   isAlarmRinging: boolean;
   alarmSessionType: SessionType | null;
 
@@ -196,12 +196,17 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         document.documentElement.classList.remove('dark');
       }
 
+      // Compute initial remainingSeconds from restored timer state
+      const restoredElapsed = restoredTimer.elapsedBeforePause + (restoredTimer.isRunning && restoredTimer.startTime ? Math.floor((Date.now() - restoredTimer.startTime) / 1000) : 0);
+      const initialRemaining = Math.max(0, restoredTimer.durationSeconds - restoredElapsed);
+
       set({
         settings,
         tasks: currentTasks,
         templates,
         sessions,
         timer: restoredTimer,
+        remainingSeconds: initialRemaining,
         activeTaskId: restoredTimer.activeTaskId,
         pendingRollover: isPending,
         isInitialized: true
@@ -436,7 +441,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
 
   // Timer Engine
   timer: defaultTimerState,
-  tick: 0,
+  remainingSeconds: defaultTimerState.durationSeconds,
   isAlarmRinging: false,
   alarmSessionType: null,
   pendingRollover: false,
@@ -454,7 +459,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         activeTaskId: state.activeTaskId
       };
       saveStoredTimerState(newTimer);
-      return { timer: newTimer };
+      return { timer: newTimer, remainingSeconds: newTimer.durationSeconds };
     });
   },
 
@@ -467,7 +472,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         startTime: Date.now()
       };
       saveStoredTimerState(updatedTimer);
-      return { timer: updatedTimer };
+      const remaining = Math.max(0, updatedTimer.durationSeconds - updatedTimer.elapsedBeforePause);
+      return { timer: updatedTimer, remainingSeconds: remaining };
     });
   },
 
@@ -483,7 +489,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         elapsedBeforePause: state.timer.elapsedBeforePause + elapsedNow
       };
       saveStoredTimerState(updatedTimer);
-      return { timer: updatedTimer };
+      const remaining = Math.max(0, updatedTimer.durationSeconds - updatedTimer.elapsedBeforePause);
+      return { timer: updatedTimer, remainingSeconds: remaining };
     });
   },
 
@@ -497,7 +504,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         startTime: Date.now()
       };
       saveStoredTimerState(updatedTimer);
-      return { timer: updatedTimer };
+      const remaining = Math.max(0, updatedTimer.durationSeconds - updatedTimer.elapsedBeforePause);
+      return { timer: updatedTimer, remainingSeconds: remaining };
     });
   },
 
@@ -558,7 +566,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         activeTaskId: state.activeTaskId
       };
       saveStoredTimerState(updatedTimer);
-      return { timer: updatedTimer };
+      return { timer: updatedTimer, remainingSeconds: durationMins * 60 };
     });
 
     // Check rollover when session ends
@@ -584,7 +592,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         elapsedBeforePause: 0
       };
       saveStoredTimerState(updatedTimer);
-      return { timer: updatedTimer };
+      return { timer: updatedTimer, remainingSeconds: durationMins * 60 };
     });
 
     checkAndPerformRollover();
@@ -687,6 +695,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
         saveStoredTimerState(nextTimer);
         return {
           timer: nextTimer,
+          remainingSeconds: nextDurationMins * 60,
           isAlarmRinging: true,
           alarmSessionType: timer.sessionType
         };
@@ -695,7 +704,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
       // Execute daily rollover check after session end
       checkAndPerformRollover();
     } else {
-      set(state => ({ tick: state.tick + 1 }));
+      const remaining = Math.max(0, timer.durationSeconds - currentElapsed);
+      set({ remainingSeconds: remaining });
     }
   },
 
@@ -721,7 +731,8 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
       return {
         isAlarmRinging: false,
         alarmSessionType: null,
-        timer: snoozeTimer
+        timer: snoozeTimer,
+        remainingSeconds: 5 * 60
       };
     });
   },

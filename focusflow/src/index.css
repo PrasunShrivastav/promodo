@@ -1,1 +1,99 @@
 @import "tailwindcss";
+
+/* =========================================
+   ChronoFocus — Premium Design System
+   ========================================= */
+
+/* Font smoothing for premium text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Monospace font for timer and numeric elements */
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* =========================================
+   Premium Timer Hero Section (no backdrop-filter)
+   ========================================= */
+
+.timer-hero-glass {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(228, 228, 231, 0.5);
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .timer-hero-glass {
+  background: rgba(24, 24, 27, 0.92);
+  border: 1px solid rgba(63, 63, 70, 0.35);
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* =========================================
+   Static Ambient Glow (no animation — just a shadow)
+   ========================================= */
+
+.timer-glow-work {
+  box-shadow: 0 0 48px rgba(244, 63, 94, 0.15), 0 0 96px rgba(244, 63, 94, 0.06);
+}
+.timer-glow-shortBreak {
+  box-shadow: 0 0 48px rgba(16, 185, 129, 0.15), 0 0 96px rgba(16, 185, 129, 0.06);
+}
+.timer-glow-longBreak {
+  box-shadow: 0 0 48px rgba(14, 165, 233, 0.15), 0 0 96px rgba(14, 165, 233, 0.06);
+}
+
+.dark .timer-glow-work {
+  box-shadow: 0 0 48px rgba(244, 63, 94, 0.2), 0 0 96px rgba(244, 63, 94, 0.08);
+}
+.dark .timer-glow-shortBreak {
+  box-shadow: 0 0 48px rgba(16, 185, 129, 0.2), 0 0 96px rgba(16, 185, 129, 0.08);
+}
+.dark .timer-glow-longBreak {
+  box-shadow: 0 0 48px rgba(14, 165, 233, 0.2), 0 0 96px rgba(14, 165, 233, 0.08);
+}
+
+/* =========================================
+   Premium Stat Cards
+   ========================================= */
+
+.stat-card-premium {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card-premium:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.dark .stat-card-premium:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Gradient shimmer on top edge — only on hover (not continuously) */
+.stat-card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(244, 63, 94, 0.4), rgba(245, 158, 11, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card-premium:hover::before {
+  opacity: 1;
+}

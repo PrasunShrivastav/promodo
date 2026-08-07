@@ -13,7 +13,11 @@ import {
 } from 'lucide-react';
 
 export const DashboardView: React.FC = React.memo(() => {
-  const timer = usePomodoroStore(state => state.timer);
+  // Surgical subscriptions — only the fields each section needs
+  const activeTaskId = usePomodoroStore(state => state.timer.activeTaskId);
+  const isRunning = usePomodoroStore(state => state.timer.isRunning);
+  const sessionType = usePomodoroStore(state => state.timer.sessionType);
+  const currentCycle = usePomodoroStore(state => state.timer.currentCycle);
   const tasks = usePomodoroStore(state => state.tasks);
   const sessions = usePomodoroStore(state => state.sessions);
   const setActiveTab = usePomodoroStore(state => state.setActiveTab);
@@ -24,8 +28,8 @@ export const DashboardView: React.FC = React.memo(() => {
   const summary = useMemo(() => generateReportSummary(sessions, tasks), [sessions, tasks]);
 
   const activeTask = useMemo(() => {
-    return tasks.find(t => t.id === timer.activeTaskId) || tasks.find(t => !t.archived) || null;
-  }, [tasks, timer.activeTaskId]);
+    return tasks.find(t => t.id === activeTaskId) || tasks.find(t => !t.archived) || null;
+  }, [tasks, activeTaskId]);
 
   const activePreset = useMemo(() => {
     return settings.presets.find(p => p.id === settings.activePresetId) || settings.presets[0];
@@ -38,31 +42,31 @@ export const DashboardView: React.FC = React.memo(() => {
   }, [tasks]);
 
   const upcomingBreakMins = useMemo(() => {
-    return timer.sessionType === 'work' 
-      ? (timer.currentCycle >= activePreset.sessionsBeforeLongBreak ? activePreset.longBreakDuration : activePreset.shortBreakDuration)
+    return sessionType === 'work' 
+      ? (currentCycle >= activePreset.sessionsBeforeLongBreak ? activePreset.longBreakDuration : activePreset.shortBreakDuration)
       : activePreset.workDuration;
-  }, [timer.sessionType, timer.currentCycle, activePreset]);
+  }, [sessionType, currentCycle, activePreset]);
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto px-4 py-6">
       
       {/* QUICK STATS METRICS RIBBON */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" aria-label="Quick statistics summary">
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Today Focus</span>
           <span className="font-mono text-base font-extrabold text-rose-500 block mt-0.5">
             {Math.floor(summary.todayFocusMinutes / 60)}h {summary.todayFocusMinutes % 60}m
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Completed</span>
           <span className="font-mono text-base font-extrabold text-zinc-900 dark:text-zinc-100 block mt-0.5">
             {summary.todayCompletedCount} Sessions
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Streak</span>
           <span className="font-mono text-base font-extrabold text-amber-500 block mt-0.5 flex items-center justify-center gap-1">
             <Flame className="w-3.5 h-3.5 fill-current" />
@@ -70,28 +74,28 @@ export const DashboardView: React.FC = React.memo(() => {
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Best Streak</span>
           <span className="font-mono text-base font-extrabold text-zinc-700 dark:text-zinc-300 block mt-0.5">
             {summary.longestStreak}d
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Weekly</span>
           <span className="font-mono text-base font-extrabold text-sky-500 block mt-0.5">
             {summary.weeklyHours}h
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Monthly</span>
           <span className="font-mono text-base font-extrabold text-emerald-500 block mt-0.5">
             {summary.monthlyHours}h
           </span>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center col-span-2 sm:col-span-1">
+        <div className="stat-card-premium p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xs text-center col-span-2 sm:col-span-1">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Planned Left</span>
           <span className="font-mono text-base font-extrabold text-purple-500 block mt-0.5">
             {remainingPlanned} Pom
@@ -99,13 +103,13 @@ export const DashboardView: React.FC = React.memo(() => {
         </div>
       </div>
 
-      {/* MAIN TIMER HERO CENTER */}
-      <section className="relative rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center" aria-label="Pomodoro Timer Section">
+      {/* MAIN TIMER HERO CENTER — Glassmorphism */}
+      <section className="relative rounded-3xl timer-hero-glass p-6 sm:p-10 flex flex-col items-center justify-center" aria-label="Pomodoro Timer Section">
         
         {/* Next Phase Indicator Banner */}
-        <div className="absolute top-4 right-4 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[11px] font-semibold text-zinc-500">
+        <div className="absolute top-4 right-4 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 text-[11px] font-semibold text-zinc-500">
           <Coffee className="w-3 h-3 text-zinc-400" />
-          <span>Next: {timer.sessionType === 'work' ? `${upcomingBreakMins}m Break` : `${upcomingBreakMins}m Focus`}</span>
+          <span>Next: {sessionType === 'work' ? `${upcomingBreakMins}m Break` : `${upcomingBreakMins}m Focus`}</span>
         </div>
 
         {/* Circular Countdown Ring */}
@@ -162,7 +166,7 @@ export const DashboardView: React.FC = React.memo(() => {
                 </span>
               </div>
 
-              {!timer.isRunning && (
+              {!isRunning && (
                 <button
                   onClick={startTimer}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-xs transition-transform active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
