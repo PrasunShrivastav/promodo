@@ -28,7 +28,7 @@ import {
   getLastRolloverDate,
   setLastRolloverDate
 } from '../utils/idbStorage';
-import confetti from 'canvas-confetti';
+import { fireConfetti } from '../utils/confetti';
 
 export type ActiveTab = 'dashboard' | 'tasks' | 'reports' | 'templates' | 'history' | 'settings';
 
@@ -634,7 +634,7 @@ export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
           completedPomodoros: activeTask.completedPomodoros + 1,
           lastWorkedDate: new Date().toISOString()
         });
-        confetti({
+        fireConfetti({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 }
